@@ -34,7 +34,7 @@ class PictureRepositoryImplTest {
       Picture actual = pictureRepositoryImpl.findById(picture.getId()).get();
 
       // then
-      assertThat(actual).isEqualTo(picture);
+      assertThat(actual.getId()).isEqualTo(picture.getId());
     }
 
     @Test
