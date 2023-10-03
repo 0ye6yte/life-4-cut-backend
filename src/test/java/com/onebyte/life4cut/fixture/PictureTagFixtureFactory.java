@@ -30,6 +30,7 @@ public class PictureTagFixtureFactory extends DefaultFixtureFactory<PictureTag> 
   public PictureTag save(BiConsumer<PictureTag, ArbitraryBuilder<PictureTag>> builder) {
     PictureTag sample = getBuilder(builder).setNull("id").sample();
     entityManager.persist(sample);
+    entityManager.clear();
 
     return sample;
   }
@@ -38,6 +39,7 @@ public class PictureTagFixtureFactory extends DefaultFixtureFactory<PictureTag> 
       int count, BiConsumer<PictureTag, ArbitraryBuilder<PictureTag>> builder) {
     List<PictureTag> samples = getBuilder(builder).setNull("id").sampleList(count);
     samples.forEach(entityManager::persist);
+    entityManager.clear();
 
     return samples;
   }

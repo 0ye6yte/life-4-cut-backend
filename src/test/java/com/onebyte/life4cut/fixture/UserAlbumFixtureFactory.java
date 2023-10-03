@@ -30,6 +30,7 @@ public class UserAlbumFixtureFactory extends DefaultFixtureFactory<UserAlbum> {
   public UserAlbum save(BiConsumer<UserAlbum, ArbitraryBuilder<UserAlbum>> builder) {
     UserAlbum sample = getBuilder(builder).setNull("id").sample();
     entityManager.persist(sample);
+    entityManager.clear();
 
     return sample;
   }
@@ -38,6 +39,7 @@ public class UserAlbumFixtureFactory extends DefaultFixtureFactory<UserAlbum> {
       int count, BiConsumer<UserAlbum, ArbitraryBuilder<UserAlbum>> builder) {
     List<UserAlbum> samples = getBuilder(builder).setNull("id").sampleList(count);
     samples.forEach(entityManager::persist);
+    entityManager.clear();
 
     return samples;
   }

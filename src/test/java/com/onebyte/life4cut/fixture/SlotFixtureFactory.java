@@ -29,6 +29,7 @@ public class SlotFixtureFactory extends DefaultFixtureFactory<Slot> {
   public Slot save(BiConsumer<Slot, ArbitraryBuilder<Slot>> builder) {
     Slot sample = getBuilder(builder).setNull("id").sample();
     entityManager.persist(sample);
+    entityManager.clear();
 
     return sample;
   }
@@ -36,6 +37,7 @@ public class SlotFixtureFactory extends DefaultFixtureFactory<Slot> {
   public List<Slot> saves(int count, BiConsumer<Slot, ArbitraryBuilder<Slot>> builder) {
     List<Slot> samples = getBuilder(builder).setNull("id").sampleList(count);
     samples.forEach(entityManager::persist);
+    entityManager.clear();
 
     return samples;
   }

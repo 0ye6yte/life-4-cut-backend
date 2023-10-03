@@ -29,6 +29,7 @@ public class PictureFixtureFactory extends DefaultFixtureFactory<Picture> {
   public Picture save(BiConsumer<Picture, ArbitraryBuilder<Picture>> builder) {
     Picture sample = getBuilder(builder).setNull("id").sample();
     entityManager.persist(sample);
+    entityManager.clear();
 
     return sample;
   }
@@ -36,6 +37,7 @@ public class PictureFixtureFactory extends DefaultFixtureFactory<Picture> {
   public List<Picture> saves(int count, BiConsumer<Picture, ArbitraryBuilder<Picture>> builder) {
     List<Picture> samples = getBuilder(builder).setNull("id").sampleList(count);
     samples.forEach(entityManager::persist);
+    entityManager.clear();
 
     return samples;
   }
