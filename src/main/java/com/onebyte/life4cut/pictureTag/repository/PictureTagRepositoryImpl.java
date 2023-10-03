@@ -10,6 +10,7 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.EntityManager;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -22,6 +23,10 @@ public class PictureTagRepositoryImpl implements PictureTagRepository {
   private final JPAQueryFactory query;
 
   public List<PictureTag> findByNames(@Nonnull Long albumId, @Nonnull List<String> names) {
+    if (names.isEmpty()) {
+      return Collections.emptyList();
+    }
+
     return query
         .selectFrom(pictureTag)
         .where(pictureTag.albumId.eq(albumId), pictureTag.name.value.in(names))
