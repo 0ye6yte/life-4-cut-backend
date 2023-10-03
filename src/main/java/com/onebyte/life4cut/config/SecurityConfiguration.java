@@ -36,15 +36,16 @@ public class SecurityConfiguration {
     return http.csrf(AbstractHttpConfigurer::disable)
         .formLogin(AbstractHttpConfigurer::disable)
         .httpBasic(AbstractHttpConfigurer::disable)
-        .authorizeHttpRequests(
-            authorize ->
-                authorize
-                    .requestMatchers("/api/v1/samples")
-                    .authenticated()
-                    .anyRequest()
-                    .permitAll())
-        .sessionManagement(
-            session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+        .authorizeHttpRequests(authorize -> authorize
+            .requestMatchers("/api/v1/samples").authenticated()
+            .anyRequest().authenticated()
+        )
+
+        .sessionManagement(session -> session
+            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+        )
+
         .addFilterBefore(
             new JwtAuthenticationFilter(tokenProvider, refreshTokenRepository),
             UsernamePasswordAuthenticationFilter.class)
