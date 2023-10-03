@@ -21,7 +21,15 @@ public abstract class DefaultFixtureFactory<T> {
     this.entityManager = entityManager;
   }
 
+  public T make() {
+    return make((t, b) -> {});
+  }
+
   public abstract T make(BiConsumer<T, ArbitraryBuilder<T>> builder);
+
+  public T save() {
+    return save((t, b) -> {});
+  }
 
   public abstract T save(BiConsumer<T, ArbitraryBuilder<T>> builder);
 }
