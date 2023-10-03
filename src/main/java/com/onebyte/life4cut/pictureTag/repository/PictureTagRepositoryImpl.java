@@ -1,9 +1,13 @@
 package com.onebyte.life4cut.pictureTag.repository;
 
 import static com.onebyte.life4cut.picture.domain.QPictureTag.pictureTag;
+import static org.springframework.util.StringUtils.hasText;
 
 import com.onebyte.life4cut.picture.domain.PictureTag;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +21,7 @@ public class PictureTagRepositoryImpl implements PictureTagRepository {
   private final EntityManager em;
   private final JPAQueryFactory query;
 
-  public List<PictureTag> findByNames(Long albumId, List<String> names) {
+  public List<PictureTag> findByNames(@Nonnull Long albumId, @Nonnull List<String> names) {
     return query
         .selectFrom(pictureTag)
         .where(pictureTag.albumId.eq(albumId), pictureTag.name.value.in(names))
@@ -42,13 +46,20 @@ public class PictureTagRepositoryImpl implements PictureTagRepository {
   }
 
   @Override
-  public List<PictureTag> search(Long albumId, String keyword) {
+  public List<PictureTag> search(@Nonnull Long albumId, @Nullable String keyword) {
     return query
         .selectFrom(pictureTag)
         .where(
-            pictureTag.albumId.eq(albumId),
-            pictureTag.name.value.contains(keyword),
-            pictureTag.deletedAt.isNull())
+            pictureTag.albumId.eq(albumId), containsKeyword(keyword), pictureTag.deletedAt.isNull())
         .fetch();
+  }
+
+  @Nullable
+  private BooleanExpression containsKeyword(@Nullable String keyword) {
+    if (!hasText(keyword)) {
+      return null;
+    }
+
+    return pictureTag.name.value.contains(keyword);
   }
 }
