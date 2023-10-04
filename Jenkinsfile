@@ -37,11 +37,6 @@ pipeline {
       steps {
         dir(path: '.') {
           script {
-            previousCommit = env.GIT_PREVIOUS_SUCCESSFUL_COMMIT ?: env.GIT_PREVIOUS_COMMIT
-            echo previousCommit
-            changeLogs = sh(script: "git log --pretty=format:'%h - %s (%an)' ${previousCommit}..${env.GIT_COMMIT}", returnStdout: true).trim()
-            echo changeLogs
-
             sh './gradlew clean build'
           }
 
@@ -53,11 +48,11 @@ pipeline {
           junit 'build/test-results/**/*.xml'
         }
         success {
-          slackSend(message: ":white_check_mark: [${env.GIT_BRANCH} #${env.BUILD_NUMBER}] Build 성공!", attachments: attachments('good', changeLogs))
+          slackSend(message: ":white_check_mark: [${env.GIT_BRANCH} #${env.BUILD_NUMBER}] Build 성공!", color: 'good')
         }
 
         failure {
-          slackSend(message: ":x: [${env.GIT_BRANCH} #${env.BUILD_NUMBER}] Build 실패!!", attachments: attachments('danger', ''))
+          slackSend(message: ":x: [${env.GIT_BRANCH} #${env.BUILD_NUMBER}] Build 실패!!", color: 'danger')
         }
       }
     }
@@ -74,7 +69,7 @@ pipeline {
         }
         post {
           success {
-            slackSend(message: ":hammer_and_pick: [${env.GIT_BRANCH} #${env.BUILD_NUMBER}] Deploy 시작!", color: 'good')
+            slackSend(message: ":hammer_and_pick: [${env.GIT_BRANCH} #${env.BUILD_NUMBER}] Deploy 시작!")
           }
         }
     }
@@ -85,14 +80,18 @@ pipeline {
         sh "docker stop life4cut"
         sh "docker rm life4cut"
         sh "docker run --name life4cut -e SPRING_DATASOURCE_PASSWORD=${env.MYSQL_PASSWORD} -d -p 8080:8080 0ne6yte/life4cut:$BUILD_NUMBER"
+
+        previousCommit = env.GIT_PREVIOUS_SUCCESSFUL_COMMIT ?: env.GIT_PREVIOUS_COMMIT
+        changeLogs = sh(script: "git log --pretty=format:'%h - %s (%an)' ${previousCommit}..${env.GIT_COMMIT}", returnStdout: true).trim()
+        echo changeLogs
       }
       post {
         success {
-          slackSend(message: ":white_check_mark: [${env.GIT_BRANCH} #${env.BUILD_NUMBER}] Deploy 성공!", color: 'good')
+          slackSend(message: ":white_check_mark: [${env.GIT_BRANCH} #${env.BUILD_NUMBER}] Deploy 성공!", attachments: attachments('good', changeLogs))
         }
 
         failure {
-          slackSend(message: ":x: [${env.GIT_BRANCH} #${env.BUILD_NUMBER}] Deploy 실패!", color: 'danger')
+          slackSend(message: ":x: [${env.GIT_BRANCH} #${env.BUILD_NUMBER}] Deploy 실패!", attachments: attachments('danger', ''))
         }
       }
     }
