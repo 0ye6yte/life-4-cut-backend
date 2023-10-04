@@ -76,14 +76,16 @@ pipeline {
 
     stage('Deploy') {
       steps {
-        sh "docker pull 0ne6yte/life4cut:$BUILD_NUMBER"
-        sh "docker stop life4cut"
-        sh "docker rm life4cut"
-        sh "docker run --name life4cut -e SPRING_DATASOURCE_PASSWORD=${env.MYSQL_PASSWORD} -d -p 8080:8080 0ne6yte/life4cut:$BUILD_NUMBER"
-
-        previousCommit = env.GIT_PREVIOUS_SUCCESSFUL_COMMIT ?: env.GIT_PREVIOUS_COMMIT
-        changeLogs = sh(script: "git log --pretty=format:'%h - %s (%an)' ${previousCommit}..${env.GIT_COMMIT}", returnStdout: true).trim()
-        echo changeLogs
+        srcipt {
+          sh "docker pull 0ne6yte/life4cut:$BUILD_NUMBER"
+          sh "docker stop life4cut"
+          sh "docker rm life4cut"
+          sh "docker run --name life4cut -e SPRING_DATASOURCE_PASSWORD=${env.MYSQL_PASSWORD} -d -p 8080:8080 0ne6yte/life4cut:$BUILD_NUMBER"
+  
+          previousCommit = env.GIT_PREVIOUS_SUCCESSFUL_COMMIT ?: env.GIT_PREVIOUS_COMMIT
+          changeLogs = sh(script: "git log --pretty=format:'%h - %s (%an)' ${previousCommit}..${env.GIT_COMMIT}", returnStdout: true).trim()
+          echo changeLogs
+        }
       }
       post {
         success {
