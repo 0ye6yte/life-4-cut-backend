@@ -73,9 +73,9 @@ spring:
 
 
   datasource:
-    url: "jdbc:mysql://localhost:3325/life-4-cut-development"
-    username: "test"
-    password: "test"
+    url: "jdbc:mysql://gcp.connect.psdb.cloud/life-4-cut-development?sslMode=VERIFY_IDENTITY"
+    username: "1iksybkoilnrhutzpuhg"
+    password: ${MYSQL_PASSWORD}
     hikari:
       maximum-pool-size: 5
       connection-timeout: 3000

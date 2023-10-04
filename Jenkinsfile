@@ -19,6 +19,9 @@ def attachments(color, changes) {
 }
 
 pipeline {
+  environment {
+    DOCKERHUB_CREDENTIALS = = credentials('DOCKERHUB')
+  }
   agent any
   stages {
     stage('Prepare') {
@@ -44,7 +47,9 @@ pipeline {
 
             sh './gradlew clean build'
           }
+
         }
+
       }
       post {
         always {
@@ -58,6 +63,15 @@ pipeline {
           slackSend(message: ":x: [${env.GIT_BRANCH} #${env.BUILD_NUMBER}] Build 실패!!", attachments: attachments('danger', ''))
         }
       }
+    }
+
+    stage('Build Docker Image') {
+        steps {
+            sh "echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin"
+            sh "docker build -t 0ne6yte/life4cut:${env.BUILD_NUMBER} ."
+            sh 'docker images'
+            sh "docker push 0ne6yte/life4cut:${env.BUILD_NUMBER}"
+        }
     }
   }
 }
