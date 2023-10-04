@@ -64,7 +64,7 @@ pipeline {
 
     stage('Build Docker Image') {
         steps {
-            withCredentials([usernamePassword(credentialsId: 'DOCKERHUB', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+            withCredentials([usernamePassword(credentialsId: 'DOCKER_HUB', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
               sh "echo $PASSWORD | docker login -u $USERNAME --password-stdin"
               sh "docker build -t 0ne6yte/life4cut:${env.BUILD_NUMBER} ."
               sh 'docker images'
