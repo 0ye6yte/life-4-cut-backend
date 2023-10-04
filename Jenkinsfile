@@ -19,9 +19,6 @@ def attachments(color, changes) {
 }
 
 pipeline {
-  environment {
-    DOCKERHUB_CREDENTIALS = credentials('DOCKERHUB')
-  }
   agent any
   stages {
     stage('Prepare') {
@@ -67,10 +64,12 @@ pipeline {
 
     stage('Build Docker Image') {
         steps {
-            sh "echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin"
-            sh "docker build -t 0ne6yte/life4cut:${env.BUILD_NUMBER} ."
-            sh 'docker images'
-            sh "docker push 0ne6yte/life4cut:${env.BUILD_NUMBER}"
+            withCredentials([usernamePassword(credentialsId: 'DOCKERHUB', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+              sh "echo $PASSWORD | docker login -u $USERNAME --password-stdin"
+              sh "docker build -t 0ne6yte/life4cut:${env.BUILD_NUMBER} ."
+              sh 'docker images'
+              sh "docker push 0ne6yte/life4cut:${env.BUILD_NUMBER}"
+            }
         }
     }
   }
