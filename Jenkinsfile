@@ -20,7 +20,7 @@ def attachments(color, changes) {
 
 pipeline {
   environment {
-    DOCKERHUB_CREDENTIALS = = credentials('DOCKERHUB')
+    DOCKERHUB_CREDENTIALS = credentials('DOCKERHUB')
   }
   agent any
   stages {
