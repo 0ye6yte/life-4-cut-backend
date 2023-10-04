@@ -69,8 +69,30 @@ pipeline {
               sh "docker build -t 0ne6yte/life4cut:${env.BUILD_NUMBER} ."
               sh 'docker images'
               sh "docker push 0ne6yte/life4cut:${env.BUILD_NUMBER}"
+              sh "docker rmi 0ne6yte/life4cut:$BUILD_NUMBER"
             }
         }
+        post {
+          success {
+            slackSend(message: ":hammer_and_pick: [${env.GIT_BRANCH} #${env.BUILD_NUMBER}] Deploy 시작!", color: 'good')
+          }
+        }
+    }
+
+    stage('Deploy') {
+      steps {
+        sh "docker pull 0ne6yte/life4cut:$BUILD_NUMBER"
+        sh "docker run --name life4cut -d -p 8080:8080 0ne6yte/life4cut:$BUILD_NUMBER -e MYSQL_PASSWORD=${env.MYSQL_PASSWORD}"
+      }
+      post {
+        success {
+          slackSend(message: ":white_check_mark: [${env.GIT_BRANCH} #${env.BUILD_NUMBER}] Deploy 성공!", color: 'good')
+        }
+
+        failure {
+          slackSend(message: ":x: [${env.GIT_BRANCH} #${env.BUILD_NUMBER}] Deploy 실패!", color: 'danger')
+        }
+      }
     }
   }
 }
