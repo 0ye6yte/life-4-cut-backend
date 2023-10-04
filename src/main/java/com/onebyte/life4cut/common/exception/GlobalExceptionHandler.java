@@ -25,15 +25,15 @@ public class GlobalExceptionHandler {
     return makeResponseEntity(e.getMessage(), HttpStatus.UNAUTHORIZED);
   }
 
+  @ExceptionHandler(JwtException.class)
+  public ResponseEntity<CustomErrorResponse> handleJwtException(final JwtException e) {
+    log.error("JwtException Exception");
+    return makeResponseEntity(e.getMessage(), HttpStatus.UNAUTHORIZED);
+  }
+
   @ExceptionHandler(AccessDeniedException.class)
   public ResponseEntity<CustomErrorResponse> handleAccessDeniedException(final AccessDeniedException e) {
     log.error("AccessDeniedException Exception");
-    return makeResponseEntity(e.getMessage(), HttpStatus.FORBIDDEN);
-  }
-
-  @ExceptionHandler(JwtException.class)
-  public ResponseEntity<CustomErrorResponse> handleJwtException(final AccessDeniedException e) {
-    log.error("JwtException Exception");
     return makeResponseEntity(e.getMessage(), HttpStatus.FORBIDDEN);
   }
 
