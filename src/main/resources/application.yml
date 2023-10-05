@@ -108,13 +108,6 @@ springdoc:
 # todo. 노효주
 # todo. CI/CD 할 때 auth에 있는 정보들 Github Secret에 잘 설정해주세요.
 auth:
-  kakao:
-    secret: secret-kakao
-  naver:
-    secret: secret-naver
-  google:
-    secret: secret-google
-
   jwt:
     secret: gewGE454568GYhiolLO2465TFY5215kFF45258YYhiolLO2465TFY2049gewGE454568GYhiolLO2465TFY5215kFF45258YYhiolLO2465TFY2049gewGE454568GYhiolLO2465TFY5215kFF45258YYhiolLO2465TFY2049gewGE454568GYhiolLO2465TFY5215kFF45258YYhiolLO2465TFY2049gewGE454568GYhiolLO2465TFY5215kFF45258YYhiolLO2465TFY2049gewGE454568GYhiolLO2465TFY5215kFF45258YYhiolLO2465TFY2049
     expires: 1h
@@ -199,13 +192,6 @@ springdoc:
     path: /docs/swagger
 
 auth:
-  kakao:
-    secret: ${KAKAO_SECRET}
-  naver:
-    secret: ${NAVER_SECRET}
-  google:
-    secret: ${GOOGLE_SECRET}
-
   jwt:
     secret: ${JWT_SECRET}
     expires: ${JWT_ACCESS_TOKEN_EXPIRES}
