@@ -14,10 +14,10 @@ public class ClientAuthenticationEntryPoint implements AuthenticationEntryPoint 
 
   private final HandlerExceptionResolver resolver;
 
-  public ClientAuthenticationEntryPoint(@Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver) {
+  public ClientAuthenticationEntryPoint(
+      @Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver) {
     this.resolver = resolver;
   }
-
 
   @Override
   public void commence(
@@ -26,6 +26,7 @@ public class ClientAuthenticationEntryPoint implements AuthenticationEntryPoint 
       AuthenticationException authException)
       throws IOException {
 
-    resolver.resolveException(request, response, null, (Exception) request.getAttribute("exception"));
+    resolver.resolveException(
+        request, response, null, (Exception) request.getAttribute("exception"));
   }
 }

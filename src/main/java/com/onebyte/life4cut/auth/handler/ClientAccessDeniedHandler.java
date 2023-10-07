@@ -14,7 +14,8 @@ public class ClientAccessDeniedHandler implements AccessDeniedHandler {
 
   private final HandlerExceptionResolver resolver;
 
-  public ClientAccessDeniedHandler(@Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver) {
+  public ClientAccessDeniedHandler(
+      @Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver) {
     this.resolver = resolver;
   }
 
@@ -25,6 +26,7 @@ public class ClientAccessDeniedHandler implements AccessDeniedHandler {
       AccessDeniedException accessDeniedException)
       throws IOException {
 
-    resolver.resolveException(request, response, null, (Exception) request.getAttribute("exception"));
+    resolver.resolveException(
+        request, response, null, (Exception) request.getAttribute("exception"));
   }
 }

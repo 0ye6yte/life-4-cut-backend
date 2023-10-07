@@ -13,4 +13,3 @@ public class CustomAuthenticationException extends AuthenticationException {
     super(errorCode.getMessage());
   }
 }
-

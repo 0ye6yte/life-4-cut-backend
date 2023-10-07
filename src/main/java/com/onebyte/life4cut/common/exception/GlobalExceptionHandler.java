@@ -20,7 +20,8 @@ public class GlobalExceptionHandler {
   }
 
   @ExceptionHandler(AuthenticationException.class)
-  public ResponseEntity<CustomErrorResponse> handleAuthenticationException(final AuthenticationException e) {
+  public ResponseEntity<CustomErrorResponse> handleAuthenticationException(
+      final AuthenticationException e) {
     log.error("AuthenticationException Exception");
     return makeResponseEntity(e.getMessage(), HttpStatus.UNAUTHORIZED);
   }
@@ -32,7 +33,8 @@ public class GlobalExceptionHandler {
   }
 
   @ExceptionHandler(AccessDeniedException.class)
-  public ResponseEntity<CustomErrorResponse> handleAccessDeniedException(final AccessDeniedException e) {
+  public ResponseEntity<CustomErrorResponse> handleAccessDeniedException(
+      final AccessDeniedException e) {
     log.error("AccessDeniedException Exception");
     return makeResponseEntity(e.getMessage(), HttpStatus.FORBIDDEN);
   }

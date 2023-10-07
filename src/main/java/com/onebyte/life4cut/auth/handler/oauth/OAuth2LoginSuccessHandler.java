@@ -5,8 +5,8 @@ import com.onebyte.life4cut.auth.dto.OAuthInfo;
 import com.onebyte.life4cut.auth.handler.jwt.TokenProvider;
 import com.onebyte.life4cut.auth.repository.RefreshTokenRepository;
 import com.onebyte.life4cut.common.exception.CustomAuthenticationException;
-import com.onebyte.life4cut.user.domain.User;
 import com.onebyte.life4cut.user.controller.dto.UserSignInRequest;
+import com.onebyte.life4cut.user.domain.User;
 import com.onebyte.life4cut.user.service.UserService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -43,12 +43,13 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
       Optional<User> findUser = userService.findUserByOAuthInfo(oAuthInfo);
       if (findUser.isEmpty()) {
-        UserSignInRequest signInUser = UserSignInRequest.builder()
-            .nickname(oAuthInfo.getEmail())
-            .email(oAuthInfo.getEmail())
-            .oauthId(oAuthInfo.getOauthId())
-            .oauthType(oAuthInfo.getOauthType().getType())
-            .build();
+        UserSignInRequest signInUser =
+            UserSignInRequest.builder()
+                .nickname(oAuthInfo.getEmail())
+                .email(oAuthInfo.getEmail())
+                .oauthId(oAuthInfo.getOauthId())
+                .oauthType(oAuthInfo.getOauthType().getType())
+                .build();
         User user = userService.save(signInUser);
         setTokenCookie(request, response, authentication, user);
       } else {
@@ -58,7 +59,6 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
     } catch (CustomAuthenticationException e) {
       request.setAttribute("exception", e);
-
     }
   }
 
