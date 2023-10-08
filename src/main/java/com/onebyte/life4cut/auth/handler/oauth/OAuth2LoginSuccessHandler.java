@@ -4,6 +4,7 @@ import com.onebyte.life4cut.auth.domain.RefreshToken;
 import com.onebyte.life4cut.auth.dto.OAuthInfo;
 import com.onebyte.life4cut.auth.handler.jwt.TokenProvider;
 import com.onebyte.life4cut.auth.repository.RefreshTokenRepository;
+import com.onebyte.life4cut.common.exception.CustomAuthenticationException;
 import com.onebyte.life4cut.user.controller.dto.UserSignInRequest;
 import com.onebyte.life4cut.user.domain.User;
 import com.onebyte.life4cut.user.service.UserService;
@@ -35,24 +36,29 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
       HttpServletRequest request, HttpServletResponse response, Authentication authentication)
       throws IOException, ServletException {
 
-    OAuth2AuthenticationToken token = (OAuth2AuthenticationToken) authentication;
-    String type = token.getAuthorizedClientRegistrationId();
-    OAuthInfo oAuthInfo = OAuthInfo.createOAuthInfo(type, token);
+    try {
+      OAuth2AuthenticationToken token = (OAuth2AuthenticationToken) authentication;
+      String type = token.getAuthorizedClientRegistrationId();
+      OAuthInfo oAuthInfo = OAuthInfo.createOAuthInfo(type, token);
 
-    Optional<User> findUser = userService.findUserByOAuthInfo(oAuthInfo);
-    if (findUser.isEmpty()) {
-      UserSignInRequest signInUser =
-          UserSignInRequest.builder()
-              .nickname(oAuthInfo.getEmail())
-              .email(oAuthInfo.getEmail())
-              .oauthId(oAuthInfo.getOauthId())
-              .oauthType(oAuthInfo.getOauthType().getType())
-              .build();
-      User user = userService.save(signInUser);
-      setTokenCookie(request, response, authentication, user);
-    } else {
-      User user = findUser.get();
-      setTokenCookie(request, response, authentication, user);
+      Optional<User> findUser = userService.findUserByOAuthInfo(oAuthInfo);
+      if (findUser.isEmpty()) {
+        UserSignInRequest signInUser =
+            UserSignInRequest.builder()
+                .nickname(oAuthInfo.getEmail())
+                .email(oAuthInfo.getEmail())
+                .oauthId(oAuthInfo.getOauthId())
+                .oauthType(oAuthInfo.getOauthType().getType())
+                .build();
+        User user = userService.save(signInUser);
+        setTokenCookie(request, response, authentication, user);
+      } else {
+        User user = findUser.get();
+        setTokenCookie(request, response, authentication, user);
+      }
+
+    } catch (CustomAuthenticationException e) {
+      request.setAttribute("exception", e);
     }
   }
 

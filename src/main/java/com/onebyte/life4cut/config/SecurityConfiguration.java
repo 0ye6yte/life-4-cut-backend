@@ -42,7 +42,7 @@ public class SecurityConfiguration {
                     .requestMatchers("/api/v1/samples")
                     .authenticated()
                     .anyRequest()
-                    .permitAll())
+                    .authenticated())
         .sessionManagement(
             session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .addFilterBefore(
