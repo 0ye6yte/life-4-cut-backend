@@ -8,7 +8,6 @@ import com.onebyte.life4cut.user.exception.RefreshTokenNotValid;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -20,6 +19,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.util.WebUtils;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -34,7 +34,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       throws ServletException, IOException {
 
     try {
-      String accessToken = resolveAccessToken(request);
+      String accessToken = WebUtils.getCookie(request, "accessToken").getValue();
       String requestUri = request.getRequestURI();
 
       if (StringUtils.hasText(accessToken) && tokenProvider.validateToken(accessToken)) {
@@ -54,34 +54,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     filterChain.doFilter(request, response);
   }
 
-  private String resolveAccessToken(HttpServletRequest request) {
-    Cookie[] cookies = request.getCookies();
-    if (cookies == null) return null;
-
-    for (Cookie cookie : cookies) {
-      String name = cookie.getName();
-      if (name.equals("accessToken")) {
-        return cookie.getValue();
-      }
-    }
-    return null;
-  }
-
-  private String resolveRefreshToken(HttpServletRequest request) {
-    Cookie[] cookies = request.getCookies();
-    if (cookies == null) return null;
-
-    for (Cookie cookie : cookies) {
-      String name = cookie.getName();
-      if (name.equals("refreshToken")) {
-        return cookie.getValue();
-      }
-    }
-    return null;
-  }
-
   private void checkRefreshToken(HttpServletRequest request, HttpServletResponse response) {
-    String refreshToken = resolveRefreshToken(request);
+    String refreshToken = WebUtils.getCookie(request, "refreshToken").getValue();
     log.info("Check Refresh Token: {}", refreshToken);
     if (refreshToken == null || refreshToken.equals("")) {
       throw new JwtException("Refresh Token이 존재하지 않습니다.");
