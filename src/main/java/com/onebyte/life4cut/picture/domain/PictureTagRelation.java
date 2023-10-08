@@ -45,4 +45,26 @@ public class PictureTagRelation extends BaseEntity {
     pictureTagRelation.tagId = tagId;
     return pictureTagRelation;
   }
+
+  public void restoreIfRequired() {
+    if (isDeleted()) {
+      restore();
+    }
+  }
+
+  public void delete(@Nonnull LocalDateTime deletedAt) {
+    if (isDeleted()) {
+      return;
+    }
+
+    this.deletedAt = deletedAt;
+  }
+
+  private boolean isDeleted() {
+    return deletedAt != null;
+  }
+
+  private void restore() {
+    deletedAt = null;
+  }
 }

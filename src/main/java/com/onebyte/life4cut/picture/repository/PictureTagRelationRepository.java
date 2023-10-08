@@ -8,4 +8,6 @@ public interface PictureTagRelationRepository {
   PictureTagRelation save(PictureTagRelation pictureTagRelation);
 
   List<PictureTagRelation> saveAll(Iterable<PictureTagRelation> pictureTagRelations);
+
+  List<PictureTagRelation> findByPictureId(Long pictureId);
 }

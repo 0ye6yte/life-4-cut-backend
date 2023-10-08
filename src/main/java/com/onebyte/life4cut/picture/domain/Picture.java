@@ -59,4 +59,21 @@ public class Picture extends BaseEntity {
     picture.picturedAt = picturedAt;
     return picture;
   }
+
+  public boolean isIn(@Nonnull Long albumId) {
+    return this.albumId.equals(albumId);
+  }
+
+  public void updateIfRequired(
+      @Nullable String content, @Nullable LocalDateTime picturedAt, @Nullable String path) {
+    if (content != null) {
+      this.content = content.trim();
+    }
+    if (picturedAt != null) {
+      this.picturedAt = picturedAt;
+    }
+    if (path != null) {
+      this.path = path;
+    }
+  }
 }

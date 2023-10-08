@@ -21,6 +21,7 @@ public enum ErrorCode {
       HttpStatus.BAD_REQUEST, ExceptionMessage.ALBUM_DOES_NOT_HAVE_SLOT.getMessage()),
   USER_ALBUM_ROLE_PERMISSION(
       HttpStatus.FORBIDDEN, ExceptionMessage.USER_ALBUM_ROLE_PERMISSION.getMessage()),
+  PICTURE_NOT_FOUND(HttpStatus.NOT_FOUND, ExceptionMessage.PICTURE_NOT_FOUND.getMessage()),
   ;
 
   private final HttpStatus status;

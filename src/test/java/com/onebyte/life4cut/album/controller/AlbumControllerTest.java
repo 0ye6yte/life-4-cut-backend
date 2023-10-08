@@ -5,6 +5,7 @@ import static com.epages.restdocs.apispec.ResourceDocumentation.parameterWithNam
 import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.multipart;
@@ -19,6 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.epages.restdocs.apispec.SimpleType;
 import com.onebyte.life4cut.album.controller.dto.CreatePictureRequest;
+import com.onebyte.life4cut.album.controller.dto.UpdatePictureRequest;
 import com.onebyte.life4cut.common.annotation.WithCustomMockUser;
 import com.onebyte.life4cut.common.controller.ControllerTest;
 import com.onebyte.life4cut.fixture.PictureTagFixtureFactory;
@@ -32,11 +34,15 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.restdocs.generate.RestDocumentationGenerator;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.restdocs.snippet.Attributes;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 @WebMvcTest(AlbumController.class)
 class AlbumControllerTest extends ControllerTest {
@@ -165,6 +171,83 @@ class AlbumControllerTest extends ControllerTest {
                               fieldWithPath("data.tags[].id").type(NUMBER).description("태그 아이디"),
                               fieldWithPath("data.tags[].name").type(STRING).description("태그 이름"))
                           .build())));
+    }
+  }
+
+  @Nested
+  @WithCustomMockUser
+  class UpdatePicture {
+
+    @Test
+    @DisplayName("사진을 수정한다")
+    void updatePicture() throws Exception {
+      // given
+      Long pictureId = 1L;
+      String content = "content";
+      List<String> tags = List.of("tag1", "tag2");
+      LocalDate picturedAt = LocalDate.of(2021, 1, 1);
+      UpdatePictureRequest request = new UpdatePictureRequest(content, tags, picturedAt);
+
+      MockMultipartFile image =
+          new MockMultipartFile(
+              "image", "original-name.png", MediaType.IMAGE_PNG_VALUE, "image".getBytes());
+      MockMultipartFile data =
+          new MockMultipartFile(
+              "data",
+              "",
+              MediaType.APPLICATION_JSON_VALUE,
+              objectMapper.writeValueAsString(request).getBytes());
+
+      doNothing()
+          .when(pictureService)
+          .updatePicture(any(), any(), any(), any(), any(), any(), any(), any());
+
+      // when
+      ResultActions result =
+          mockMvc.perform(
+              ((MockMultipartHttpServletRequestBuilder)
+                      MockMvcRequestBuilders.multipart(
+                              HttpMethod.PATCH,
+                              "/api/v1/albums/{albumId}/pictures/{pictureId}",
+                              1L,
+                              pictureId)
+                          .requestAttr(
+                              RestDocumentationGenerator.ATTRIBUTE_NAME_URL_TEMPLATE,
+                              "/api/v1/albums/{albumId}/pictures/{pictureId}"))
+                  .file(image)
+                  .file(data));
+
+      // then
+      result
+          .andExpect(status().isOk())
+          .andDo(
+              document(
+                  "{class_name}/{method_name}",
+                  resource(
+                      ResourceSnippetParameters.builder()
+                          .description("사진을 수정한다")
+                          .summary("사진을 수정한다")
+                          .pathParameters(
+                              parameterWithName("albumId")
+                                  .description("앨범 아이디")
+                                  .type(SimpleType.NUMBER),
+                              parameterWithName("pictureId")
+                                  .description("사진 아이디")
+                                  .type(SimpleType.NUMBER))
+                          .build()),
+                  requestPartFields(
+                      "data",
+                      fieldWithPath("content")
+                          .type(JsonFieldType.STRING)
+                          .description("사진 내용")
+                          .optional(),
+                      fieldWithPath("tags[]")
+                          .type(JsonFieldType.ARRAY)
+                          .description("사진 태그 목록")
+                          .attributes(Attributes.key("itemType").value(JsonFieldType.STRING))
+                          .optional(),
+                      fieldWithPath("picturedAt").description("사진 찍은 날짜").optional()),
+                  requestPartBody("image")));
     }
   }
 }

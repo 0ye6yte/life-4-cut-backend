@@ -13,7 +13,7 @@ public class ApiResponse<T> {
     this.data = data;
   }
 
-  public static ApiResponse<Object> OK() {
+  public static ApiResponse<EmptyResponse> OK() {
     return new ApiResponse<>(new EmptyResponse(), "OK");
   }
 
