@@ -139,7 +139,7 @@ class PictureTagRepositoryImplTest {
 
       // then
       assertThat(results).hasSize(1);
-      assertThat(results.get(0)).isEqualTo(expectedTag);
+      assertThat(results.get(0).getId()).isEqualTo(expectedTag.getId());
     }
   }
 }

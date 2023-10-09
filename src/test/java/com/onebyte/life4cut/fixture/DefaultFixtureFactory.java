@@ -41,6 +41,7 @@ public abstract class DefaultFixtureFactory<T> {
   public T save(BiConsumer<T, ArbitraryBuilder<T>> builder) {
     T sample = getBuilder(builder).setNull("id").sample();
     entityManager.persist(sample);
+    entityManager.flush();
     entityManager.clear();
 
     return sample;
@@ -49,6 +50,7 @@ public abstract class DefaultFixtureFactory<T> {
   public List<T> saves(int count, BiConsumer<T, ArbitraryBuilder<T>> builder) {
     List<T> samples = getBuilder(builder).setNull("id").sampleList(count);
     samples.forEach(entityManager::persist);
+    entityManager.flush();
     entityManager.clear();
 
     return samples;
