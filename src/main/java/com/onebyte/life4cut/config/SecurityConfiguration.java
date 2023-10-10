@@ -8,7 +8,6 @@ import com.onebyte.life4cut.auth.handler.oauth.OAuth2LoginFailureHandler;
 import com.onebyte.life4cut.auth.handler.oauth.OAuth2LoginSuccessHandler;
 import com.onebyte.life4cut.auth.repository.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -63,7 +62,6 @@ public class SecurityConfiguration {
   @Bean
   public WebSecurityCustomizer webSecurityCustomizer() {
     return web -> web.ignoring()
-        .requestMatchers(PathRequest.toStaticResources().atCommonLocations()) // static에 있는 모든 정적 자원 허용
         .requestMatchers("/images/**", "/js/**", "/webjars/**")
         .requestMatchers(
             // -- Swagger UI v3 (OpenAPI)
