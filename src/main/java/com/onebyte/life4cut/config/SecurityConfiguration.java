@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
@@ -36,13 +37,7 @@ public class SecurityConfiguration {
     return http.csrf(AbstractHttpConfigurer::disable)
         .formLogin(AbstractHttpConfigurer::disable)
         .httpBasic(AbstractHttpConfigurer::disable)
-        .authorizeHttpRequests(
-            authorize ->
-                authorize
-                    .requestMatchers("/api/v1/samples")
-                    .authenticated()
-                    .anyRequest()
-                    .authenticated())
+        .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated())
         .sessionManagement(
             session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .addFilterBefore(
@@ -62,5 +57,19 @@ public class SecurityConfiguration {
                     .authenticationEntryPoint(clientAuthenticationEntryPoint)
                     .accessDeniedHandler(clientAccessDeniedHandler))
         .build();
+  }
+
+  @Bean
+  public WebSecurityCustomizer webSecurityCustomizer() {
+    return web -> web.ignoring()
+        .requestMatchers("/images/**", "/js/**", "/webjars/**")
+        .requestMatchers(
+            // -- Swagger UI v3 (OpenAPI)
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/docs/openapi3.yaml",
+            "/docs/openapi3.json",
+            "/docs/swagger",
+            "/docs/swagger-ui/**");
   }
 }

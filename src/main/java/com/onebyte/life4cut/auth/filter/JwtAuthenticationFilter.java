@@ -8,6 +8,7 @@ import com.onebyte.life4cut.user.exception.RefreshTokenNotValid;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -34,7 +35,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       throws ServletException, IOException {
 
     try {
-      String accessToken = WebUtils.getCookie(request, "accessToken").getValue();
+      String accessToken = getCookieValue(request, "accessToken");
       String requestUri = request.getRequestURI();
 
       if (StringUtils.hasText(accessToken) && tokenProvider.validateToken(accessToken)) {
@@ -54,8 +55,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     filterChain.doFilter(request, response);
   }
 
+  private String getCookieValue(HttpServletRequest request, String key) {
+    Cookie cookie = WebUtils.getCookie(request, key);
+    if (cookie == null) {
+      return null;
+    }
+
+    return cookie.getValue();
+  }
+
   private void checkRefreshToken(HttpServletRequest request, HttpServletResponse response) {
-    String refreshToken = WebUtils.getCookie(request, "refreshToken").getValue();
+    String refreshToken = getCookieValue(request, "refreshToken");
     log.info("Check Refresh Token: {}", refreshToken);
     if (refreshToken == null || refreshToken.equals("")) {
       throw new JwtException("Refresh Token이 존재하지 않습니다.");
