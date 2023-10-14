@@ -18,6 +18,7 @@ import com.onebyte.life4cut.fixture.AlbumFixtureFactory;
 import com.onebyte.life4cut.fixture.PictureFixtureFactory;
 import com.onebyte.life4cut.fixture.PictureTagFixtureFactory;
 import com.onebyte.life4cut.fixture.PictureTagRelationFixtureFactory;
+import com.onebyte.life4cut.fixture.SlotFixtureFactory;
 import com.onebyte.life4cut.fixture.UserAlbumFixtureFactory;
 import com.onebyte.life4cut.picture.domain.Picture;
 import com.onebyte.life4cut.picture.domain.PictureTag;
@@ -26,7 +27,9 @@ import com.onebyte.life4cut.picture.domain.vo.PictureTagName;
 import com.onebyte.life4cut.picture.exception.PictureNotFoundException;
 import com.onebyte.life4cut.picture.repository.PictureRepositoryImpl;
 import com.onebyte.life4cut.picture.repository.PictureTagRelationRepositoryImpl;
+import com.onebyte.life4cut.picture.service.dto.PictureDetailInSlot;
 import com.onebyte.life4cut.pictureTag.repository.PictureTagRepositoryImpl;
+import com.onebyte.life4cut.slot.domain.Slot;
 import com.onebyte.life4cut.slot.repository.SlotRepositoryImpl;
 import com.onebyte.life4cut.support.fileUpload.FileUploadResponse;
 import com.onebyte.life4cut.support.fileUpload.FileUploader;
@@ -60,6 +63,7 @@ public class PictureServiceIntTest {
   @Autowired private UserAlbumFixtureFactory userAlbumFixtureFactory;
   @Autowired private PictureTagFixtureFactory pictureTagFixtureFactory;
   @Autowired private PictureTagRelationFixtureFactory pictureTagRelationFixtureFactory;
+  @Autowired private SlotFixtureFactory slotFixtureFactory;
 
   @Autowired
   public PictureServiceIntTest(EntityManager entityManager, JPAQueryFactory query) {
@@ -478,6 +482,130 @@ public class PictureServiceIntTest {
                   assertThat(relation.getDeletedAt()).isNull();
                 }
               });
+    }
+  }
+
+  @Nested
+  class GetPicturesInSlotByAlbum {
+
+    @Test
+    @DisplayName("해당하는 앨범이 없는 경우 AlbumNotFoundException이 발생한다")
+    void noAlbum() {
+      // given
+      Long userId = 1L;
+      Long albumId = 1L;
+
+      // when
+      Throwable throwable =
+          catchThrowable(() -> pictureService.getPicturesInSlotByAlbum(userId, albumId));
+      // then
+      assertThat(throwable).isInstanceOf(AlbumNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("해당하는 앨범에 권한이 없는 경우 UserAlbumRolePermissionException이 발생한다")
+    void noPermission() {
+      // given
+      Album album =
+          albumFixtureFactory.save(
+              (entity, builder) -> {
+                builder.setNull("deletedAt");
+              });
+
+      Long userId = 1L;
+      Long albumId = album.getId();
+
+      // when
+      Throwable throwable =
+          catchThrowable(() -> pictureService.getPicturesInSlotByAlbum(userId, albumId));
+
+      // then
+      assertThat(throwable).isInstanceOf(UserAlbumRolePermissionException.class);
+    }
+
+    @Test
+    @DisplayName("앨범 내 사진들을 슬롯단위로 조회한다")
+    void getPicturesInSlotByAlbum() {
+      // given
+      Long userId = 1L;
+      Album album =
+          albumFixtureFactory.save(
+              (entity, builder) -> {
+                builder.setNull("deletedAt");
+              });
+      userAlbumFixtureFactory.save(
+          (entity, builder) -> {
+            builder.set("userId", userId);
+            builder.set("role", UserAlbumRole.GUEST);
+            builder.set("albumId", album.getId());
+            builder.setNull("deletedAt");
+          });
+      Picture picture1 =
+          pictureFixtureFactory.save(
+              (entity, builder) -> {
+                builder.set("albumId", album.getId());
+                builder.setNull("deletedAt");
+              });
+      Picture picture2 =
+          pictureFixtureFactory.save(
+              (entity, builder) -> {
+                builder.set("albumId", album.getId());
+                builder.setNull("deletedAt");
+              });
+      Picture picture3 =
+          pictureFixtureFactory.save(
+              (entity, builder) -> {
+                builder.set("albumId", album.getId());
+                builder.setNull("deletedAt");
+              });
+
+      Slot slot1 =
+          slotFixtureFactory.save(
+              (entity, builder) -> {
+                builder.set("albumId", album.getId());
+                builder.set("pictureId", picture1.getId());
+                builder.set("page", 1L);
+                builder.setNull("deletedAt");
+              });
+      Slot slot2 =
+          slotFixtureFactory.save(
+              (entity, builder) -> {
+                builder.set("albumId", album.getId());
+                builder.setNull("pictureId");
+                builder.set("page", 2L);
+                builder.setNull("deletedAt");
+              });
+      Slot slot3 =
+          slotFixtureFactory.save(
+              (entity, builder) -> {
+                builder.set("albumId", album.getId());
+                builder.set("pictureId", picture2.getId());
+                builder.set("page", 3L);
+                builder.setNull("deletedAt");
+              });
+      Slot slot4 =
+          slotFixtureFactory.save(
+              (entity, builder) -> {
+                builder.set("albumId", album.getId());
+                builder.set("pictureId", picture3.getId());
+                builder.set("page", 3L);
+                builder.setNull("deletedAt");
+              });
+
+      // when
+      List<PictureDetailInSlot> results =
+          pictureService.getPicturesInSlotByAlbum(userId, album.getId());
+
+      // then
+      assertThat(results.size()).isEqualTo(4);
+      assertThat(results.get(0).slotId()).isEqualTo(slot1.getId());
+      assertThat(results.get(0).picture()).isNotEmpty();
+      assertThat(results.get(1).slotId()).isEqualTo(slot2.getId());
+      assertThat(results.get(1).picture()).isEmpty();
+      assertThat(results.get(2).slotId()).isEqualTo(slot3.getId());
+      assertThat(results.get(2).picture()).isNotEmpty();
+      assertThat(results.get(3).slotId()).isEqualTo(slot4.getId());
+      assertThat(results.get(3).picture()).isNotEmpty();
     }
   }
 }
