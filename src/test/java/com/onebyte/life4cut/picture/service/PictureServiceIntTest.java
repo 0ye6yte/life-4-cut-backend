@@ -64,7 +64,7 @@ public class PictureServiceIntTest {
   @Autowired
   public PictureServiceIntTest(EntityManager entityManager, JPAQueryFactory query) {
     this.entityManager = entityManager;
-    this.pictureRepository = new PictureRepositoryImpl(entityManager);
+    this.pictureRepository = new PictureRepositoryImpl(entityManager, query);
     this.pictureService =
         new PictureService(
             new SlotRepositoryImpl(query),
