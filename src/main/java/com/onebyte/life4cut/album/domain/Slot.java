@@ -1,10 +1,14 @@
 package com.onebyte.life4cut.album.domain;
 
+import com.onebyte.life4cut.album.domain.vo.SlotLayout;
+import com.onebyte.life4cut.album.domain.vo.SlotLocation;
 import com.onebyte.life4cut.common.entity.BaseEntity;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -26,11 +30,13 @@ public class Slot extends BaseEntity {
 
   @Nonnull
   @Column(nullable = false)
-  private String layout;
+  @Enumerated(EnumType.STRING)
+  private SlotLayout layout;
 
   @Nonnull
   @Column(nullable = false)
-  private String location;
+  @Enumerated(EnumType.STRING)
+  private SlotLocation location;
 
   @Nullable @Column private LocalDateTime deletedAt;
 
