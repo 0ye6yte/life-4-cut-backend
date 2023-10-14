@@ -1,6 +1,6 @@
-package com.onebyte.life4cut.album.repository;
+package com.onebyte.life4cut.slot.repository;
 
-import com.onebyte.life4cut.album.domain.Slot;
+import com.onebyte.life4cut.slot.domain.Slot;
 import java.util.List;
 import java.util.Optional;
 

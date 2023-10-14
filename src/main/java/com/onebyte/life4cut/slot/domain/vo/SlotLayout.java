@@ -1,4 +1,4 @@
-package com.onebyte.life4cut.album.domain.vo;
+package com.onebyte.life4cut.slot.domain.vo;
 
 public enum SlotLayout {
   LONG_VERTICAL,

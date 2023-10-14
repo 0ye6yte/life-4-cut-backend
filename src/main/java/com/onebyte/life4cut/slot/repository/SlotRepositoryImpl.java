@@ -1,8 +1,8 @@
-package com.onebyte.life4cut.album.repository;
+package com.onebyte.life4cut.slot.repository;
 
-import static com.onebyte.life4cut.album.domain.QSlot.slot;
+import static com.onebyte.life4cut.slot.domain.QSlot.slot;
 
-import com.onebyte.life4cut.album.domain.Slot;
+import com.onebyte.life4cut.slot.domain.Slot;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import java.util.Optional;

@@ -1,4 +1,4 @@
-package com.onebyte.life4cut.album.exception;
+package com.onebyte.life4cut.slot.exception;
 
 import com.onebyte.life4cut.common.exception.CustomException;
 import com.onebyte.life4cut.common.exception.ErrorCode;

@@ -1,10 +1,10 @@
-package com.onebyte.life4cut.album.repository;
+package com.onebyte.life4cut.slot.repository;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-import com.onebyte.life4cut.album.domain.Slot;
 import com.onebyte.life4cut.common.annotation.RepositoryTest;
 import com.onebyte.life4cut.fixture.SlotFixtureFactory;
+import com.onebyte.life4cut.slot.domain.Slot;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;

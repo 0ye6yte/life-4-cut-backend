@@ -1,7 +1,7 @@
 package com.onebyte.life4cut.fixture;
 
 import com.navercorp.fixturemonkey.ArbitraryBuilder;
-import com.onebyte.life4cut.album.domain.Slot;
+import com.onebyte.life4cut.slot.domain.Slot;
 import jakarta.persistence.EntityManager;
 import java.util.function.BiConsumer;
 import org.springframework.beans.factory.annotation.Autowired;

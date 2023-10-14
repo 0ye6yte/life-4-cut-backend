@@ -1,14 +1,11 @@
 package com.onebyte.life4cut.picture.service;
 
 import com.onebyte.life4cut.album.domain.Album;
-import com.onebyte.life4cut.album.domain.Slot;
 import com.onebyte.life4cut.album.domain.UserAlbum;
 import com.onebyte.life4cut.album.exception.AlbumDoesNotHaveSlotException;
 import com.onebyte.life4cut.album.exception.AlbumNotFoundException;
-import com.onebyte.life4cut.album.exception.SlotNotFoundException;
 import com.onebyte.life4cut.album.exception.UserAlbumRolePermissionException;
 import com.onebyte.life4cut.album.repository.AlbumRepository;
-import com.onebyte.life4cut.album.repository.SlotRepository;
 import com.onebyte.life4cut.album.repository.UserAlbumRepository;
 import com.onebyte.life4cut.common.constants.S3Env;
 import com.onebyte.life4cut.picture.domain.Picture;
@@ -18,6 +15,9 @@ import com.onebyte.life4cut.picture.exception.PictureNotFoundException;
 import com.onebyte.life4cut.picture.repository.PictureRepository;
 import com.onebyte.life4cut.picture.repository.PictureTagRelationRepository;
 import com.onebyte.life4cut.pictureTag.repository.PictureTagRepository;
+import com.onebyte.life4cut.slot.domain.Slot;
+import com.onebyte.life4cut.slot.exception.SlotNotFoundException;
+import com.onebyte.life4cut.slot.repository.SlotRepository;
 import com.onebyte.life4cut.support.fileUpload.FileUploadResponse;
 import com.onebyte.life4cut.support.fileUpload.FileUploader;
 import com.onebyte.life4cut.support.fileUpload.MultipartFileUploadRequest;
