@@ -56,7 +56,7 @@ public class PictureRepositoryImpl implements PictureRepository {
         .from(picture)
         .leftJoin(pictureTagRelation)
         .on(picture.id.eq(pictureTagRelation.pictureId), pictureTagRelation.deletedAt.isNull())
-        .innerJoin(pictureTag)
+        .leftJoin(pictureTag)
         .on(pictureTagRelation.tagId.eq(pictureTag.id), pictureTag.deletedAt.isNull())
         .where(picture.id.in(pictureIds), picture.deletedAt.isNull())
         .groupBy(picture.id)

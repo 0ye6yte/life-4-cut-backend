@@ -9,6 +9,9 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.multipart;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
 import static org.springframework.restdocs.payload.JsonFieldType.NUMBER;
 import static org.springframework.restdocs.payload.JsonFieldType.STRING;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
@@ -25,10 +28,16 @@ import com.onebyte.life4cut.common.annotation.WithCustomMockUser;
 import com.onebyte.life4cut.common.controller.ControllerTest;
 import com.onebyte.life4cut.fixture.PictureTagFixtureFactory;
 import com.onebyte.life4cut.picture.domain.vo.PictureTagName;
+import com.onebyte.life4cut.picture.repository.dto.PictureDetailResult;
 import com.onebyte.life4cut.picture.service.PictureService;
+import com.onebyte.life4cut.picture.service.dto.PictureDetailInSlot;
 import com.onebyte.life4cut.pictureTag.service.PictureTagService;
+import com.onebyte.life4cut.slot.domain.vo.SlotLayout;
+import com.onebyte.life4cut.slot.domain.vo.SlotLocation;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -46,6 +55,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 @WebMvcTest(AlbumController.class)
 class AlbumControllerTest extends ControllerTest {
+
+  private final String API_TAG = "ALBUM API";
 
   @MockBean private PictureService pictureService;
 
@@ -94,6 +105,7 @@ class AlbumControllerTest extends ControllerTest {
                   "{class_name}/{method_name}",
                   resource(
                       ResourceSnippetParameters.builder()
+                          .tag(API_TAG)
                           .description("사진을 업로드한다")
                           .summary("사진을 업로드한다")
                           .pathParameters(
@@ -152,6 +164,7 @@ class AlbumControllerTest extends ControllerTest {
                   "{class_name}/{method_name}",
                   resource(
                       ResourceSnippetParameters.builder()
+                          .tag(API_TAG)
                           .description("태그를 검색한다")
                           .summary("태그를 검색한다")
                           .pathParameters(
@@ -225,6 +238,7 @@ class AlbumControllerTest extends ControllerTest {
                   "{class_name}/{method_name}",
                   resource(
                       ResourceSnippetParameters.builder()
+                          .tag(API_TAG)
                           .description("사진을 수정한다")
                           .summary("사진을 수정한다")
                           .pathParameters(
@@ -248,6 +262,87 @@ class AlbumControllerTest extends ControllerTest {
                           .optional(),
                       fieldWithPath("picturedAt").description("사진 찍은 날짜").optional()),
                   requestPartBody("image")));
+    }
+  }
+
+  @Nested
+  @WithCustomMockUser
+  class GetPicturesInSlot {
+    @Test
+    @DisplayName("앨범내 사진을 페이지단위로 조회한다")
+    void getPicturesInSlot() throws Exception {
+      // given
+      Long albumId = 1L;
+
+      when(pictureService.getPicturesInSlotByAlbum(any(), any()))
+          .thenReturn(
+              List.of(
+                  new PictureDetailInSlot(
+                      1L,
+                      1L,
+                      SlotLayout.FAT_HORIZONTAL,
+                      SlotLocation.LEFT,
+                      Optional.of(
+                          new PictureDetailResult(
+                              1L,
+                              "content",
+                              "path",
+                              LocalDateTime.of(2023, 10, 15, 0, 14, 15),
+                              "tag1,tag2")))));
+
+      // when
+      ResultActions result = mockMvc.perform(get("/api/v1/albums/{albumId}/pictures", albumId));
+
+      // then
+      result
+          .andExpect(status().isOk())
+          .andExpect(jsonPath("$.message").value("OK"))
+          .andDo(
+              document(
+                  "{class_name}/{method_name}",
+                  preprocessRequest(prettyPrint()),
+                  preprocessResponse(prettyPrint()),
+                  resource(
+                      ResourceSnippetParameters.builder()
+                          .tag(API_TAG)
+                          .description("앨범내 페이지별 사진 목록을 조회한다")
+                          .summary("앨범내 페이지별 사진 목록을 조회한다")
+                          .pathParameters(
+                              parameterWithName("albumId")
+                                  .description("앨범 아이디")
+                                  .type(SimpleType.NUMBER))
+                          .responseFields(
+                              fieldWithPath("message").type(STRING).description("응답 메시지"),
+                              fieldWithPath("data.pictures[]")
+                                  .type(JsonFieldType.ARRAY)
+                                  .description("페이지 목록"),
+                              fieldWithPath("data.pictures[].[]")
+                                  .type(JsonFieldType.ARRAY)
+                                  .description("페이지 내 슬롯 목록"),
+                              fieldWithPath("data.pictures[].[].pictureId")
+                                  .type(NUMBER)
+                                  .description("사진 아이디"),
+                              fieldWithPath("data.pictures[].[].path")
+                                  .type(STRING)
+                                  .description("사진 경로"),
+                              fieldWithPath("data.pictures[].[].content")
+                                  .type(STRING)
+                                  .description("사진 내용"),
+                              fieldWithPath("data.pictures[].[].layout")
+                                  .type(STRING)
+                                  .description("사진 레이아웃"),
+                              fieldWithPath("data.pictures[].[].location")
+                                  .type(STRING)
+                                  .description("사진 위치"),
+                              fieldWithPath("data.pictures[].[].picturedAt")
+                                  .type(STRING)
+                                  .description("사진 찍은 날짜"),
+                              fieldWithPath("data.pictures[].[].tagNames[]")
+                                  .type(JsonFieldType.ARRAY)
+                                  .description("사진 태그 목록")
+                                  .attributes(
+                                      Attributes.key("itemType").value(JsonFieldType.STRING)))
+                          .build())));
     }
   }
 }
