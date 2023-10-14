@@ -73,14 +73,14 @@ dependencies {
 
 openapi3 {
 
-    val server1: Closure<Server> = closureOf<Server> {
+    val devServer: Closure<Server> = closureOf<Server> {
         this.url = "http://localhost:8080/"
     } as Closure<Server>
-    val server2: Closure<Server> = closureOf<Server> {
+    val localServer: Closure<Server> = closureOf<Server> {
         this.url = "http://43.200.247.241:8080/"
     } as Closure<Server>
 
-    setServers(listOf(server1, server2))
+    setServers(listOf(devServer, localServer))
     title = "spring-rest-docs + Swagger-UI"
     description = "Swagger UI"
     version = "0.0.1"
