@@ -85,7 +85,7 @@ openapi3 {
     description = "Swagger UI"
     version = "0.0.1"
     format = "json"
-    outputDirectory = "build/resources/main/static/docs"
+    outputDirectory = "$buildDir/resources/main/static/docs"
 }
 
 sourceSets {
