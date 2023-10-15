@@ -1,11 +1,12 @@
-package com.onebyte.life4cut.album.repository;
+package com.onebyte.life4cut.slot.repository;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-import com.onebyte.life4cut.album.domain.Slot;
 import com.onebyte.life4cut.common.annotation.RepositoryTest;
 import com.onebyte.life4cut.fixture.SlotFixtureFactory;
+import com.onebyte.life4cut.slot.domain.Slot;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -17,7 +18,7 @@ class SlotRepositoryImplTest {
 
   @Autowired private SlotFixtureFactory slotFixtureFactory;
 
-  @Autowired private SlotRepositoryImpl slotQueryRepositoryImpl;
+  @Autowired private SlotRepositoryImpl slotRepositoryImpl;
 
   @Nested
   class FindById {
@@ -32,7 +33,7 @@ class SlotRepositoryImplTest {
               });
 
       // when
-      Slot findSlot = slotQueryRepositoryImpl.findById(slot.getId()).orElseThrow();
+      Slot findSlot = slotRepositoryImpl.findById(slot.getId()).orElseThrow();
 
       // then
       assertThat(findSlot.getId()).isEqualTo(slot.getId());
@@ -49,10 +50,34 @@ class SlotRepositoryImplTest {
               });
 
       // when
-      Optional<Slot> findSlot = slotQueryRepositoryImpl.findById(slot.getId());
+      Optional<Slot> findSlot = slotRepositoryImpl.findById(slot.getId());
 
       // then
       assertThat(findSlot).isEmpty();
+    }
+  }
+
+  @Nested
+  class FindByAlbumId {
+
+    @Test
+    @DisplayName("앨범의 슬롯을 조회한다")
+    void findByAlbumId() {
+      // given
+      Long albumId = 1L;
+      Slot slot =
+          slotFixtureFactory.save(
+              (entity, builder) -> {
+                builder.set("albumId", albumId);
+                builder.setNull("deletedAt");
+              });
+
+      // when
+      List<Slot> results = slotRepositoryImpl.findByAlbumId(albumId);
+
+      // then
+      assertThat(results.size()).isEqualTo(1);
+      assertThat(results.get(0).getId()).isEqualTo(slot.getId());
     }
   }
 }

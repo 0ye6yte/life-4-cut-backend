@@ -1,14 +1,11 @@
 package com.onebyte.life4cut.picture.service;
 
 import com.onebyte.life4cut.album.domain.Album;
-import com.onebyte.life4cut.album.domain.Slot;
 import com.onebyte.life4cut.album.domain.UserAlbum;
 import com.onebyte.life4cut.album.exception.AlbumDoesNotHaveSlotException;
 import com.onebyte.life4cut.album.exception.AlbumNotFoundException;
-import com.onebyte.life4cut.album.exception.SlotNotFoundException;
 import com.onebyte.life4cut.album.exception.UserAlbumRolePermissionException;
 import com.onebyte.life4cut.album.repository.AlbumRepository;
-import com.onebyte.life4cut.album.repository.SlotRepository;
 import com.onebyte.life4cut.album.repository.UserAlbumRepository;
 import com.onebyte.life4cut.common.constants.S3Env;
 import com.onebyte.life4cut.picture.domain.Picture;
@@ -17,22 +14,31 @@ import com.onebyte.life4cut.picture.domain.PictureTagRelation;
 import com.onebyte.life4cut.picture.exception.PictureNotFoundException;
 import com.onebyte.life4cut.picture.repository.PictureRepository;
 import com.onebyte.life4cut.picture.repository.PictureTagRelationRepository;
+import com.onebyte.life4cut.picture.repository.dto.PictureDetailResult;
+import com.onebyte.life4cut.picture.service.dto.PictureDetailInSlot;
 import com.onebyte.life4cut.pictureTag.repository.PictureTagRepository;
+import com.onebyte.life4cut.slot.domain.Slot;
+import com.onebyte.life4cut.slot.exception.SlotNotFoundException;
+import com.onebyte.life4cut.slot.repository.SlotRepository;
 import com.onebyte.life4cut.support.fileUpload.FileUploadResponse;
 import com.onebyte.life4cut.support.fileUpload.FileUploader;
 import com.onebyte.life4cut.support.fileUpload.MultipartFileUploadRequest;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class PictureService {
 
   private final SlotRepository slotRepository;
@@ -44,7 +50,6 @@ public class PictureService {
   private final FileUploader fileUploader;
   private final S3Env s3Env;
 
-  @Transactional
   public Long createInSlot(
       @Nonnull Long authorId,
       @Nonnull Long albumId,
@@ -99,7 +104,6 @@ public class PictureService {
     return picture.getId();
   }
 
-  @Transactional
   public void updatePicture(
       @Nonnull final Long authorId,
       @Nonnull final Long albumId,
@@ -186,6 +190,44 @@ public class PictureService {
       pictureTagRelationsToRestoreIfRequired.forEach(PictureTagRelation::restoreIfRequired);
       pictureTagRelationsToDelete.forEach(pictureTagRelation -> pictureTagRelation.delete(now));
     }
+  }
+
+  @Nonnull
+  @Transactional(readOnly = true)
+  public List<PictureDetailInSlot> getPicturesInSlotByAlbum(
+      @Nonnull final Long userId, @Nonnull final Long albumId) {
+    albumRepository.findById(albumId).orElseThrow(AlbumNotFoundException::new);
+    userAlbumRepository
+        .findByUserIdAndAlbumId(userId, albumId)
+        .orElseThrow(UserAlbumRolePermissionException::new);
+
+    List<Slot> slots = slotRepository.findByAlbumId(albumId);
+    if (slots.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    List<Long> pictureIds =
+        slots.stream().map(Slot::getPictureId).filter(Objects::nonNull).toList();
+
+    List<PictureDetailResult> pictureDetailResults = pictureRepository.findDetailByIds(pictureIds);
+
+    return slots.stream()
+        .map(
+            slot -> {
+              Optional<PictureDetailResult> pictureDetailResult =
+                  pictureDetailResults.stream()
+                      .filter(
+                          pictureDetail -> pictureDetail.pictureId().equals(slot.getPictureId()))
+                      .findFirst();
+
+              return new PictureDetailInSlot(
+                  slot.getId(),
+                  slot.getPage(),
+                  slot.getLayout(),
+                  slot.getLocation(),
+                  pictureDetailResult);
+            })
+        .toList();
   }
 
   @Nullable

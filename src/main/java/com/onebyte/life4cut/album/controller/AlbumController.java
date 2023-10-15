@@ -2,6 +2,7 @@ package com.onebyte.life4cut.album.controller;
 
 import com.onebyte.life4cut.album.controller.dto.CreatePictureRequest;
 import com.onebyte.life4cut.album.controller.dto.CreatePictureResponse;
+import com.onebyte.life4cut.album.controller.dto.GetPicturesInSlotResponse;
 import com.onebyte.life4cut.album.controller.dto.SearchTagsRequest;
 import com.onebyte.life4cut.album.controller.dto.SearchTagsResponse;
 import com.onebyte.life4cut.album.controller.dto.UpdatePictureRequest;
@@ -10,6 +11,7 @@ import com.onebyte.life4cut.common.web.ApiResponse;
 import com.onebyte.life4cut.common.web.EmptyResponse;
 import com.onebyte.life4cut.picture.domain.PictureTag;
 import com.onebyte.life4cut.picture.service.PictureService;
+import com.onebyte.life4cut.picture.service.dto.PictureDetailInSlot;
 import com.onebyte.life4cut.pictureTag.service.PictureTagService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -82,5 +84,15 @@ public class AlbumController {
         image);
 
     return ApiResponse.OK();
+  }
+
+  @GetMapping("/{albumId}/pictures")
+  public ApiResponse<GetPicturesInSlotResponse> getPicturesInSlot(
+      @Min(1) @PathVariable("albumId") Long albumId,
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+    List<PictureDetailInSlot> pictureDetailInSlots =
+        pictureService.getPicturesInSlotByAlbum(userDetails.getUserId(), albumId);
+
+    return ApiResponse.OK(GetPicturesInSlotResponse.of(pictureDetailInSlots));
   }
 }
