@@ -1,4 +1,6 @@
 import org.hidetake.gradle.swagger.generator.GenerateSwaggerUI
+import io.swagger.v3.oas.models.servers.Server
+import groovy.lang.Closure
 
 plugins {
     java
@@ -70,12 +72,20 @@ dependencies {
 }
 
 openapi3 {
-    setServer("http://localhost:8080")
+
+    val devServer: Closure<Server> = closureOf<Server> {
+        this.url = "http://localhost:8080/"
+    } as Closure<Server>
+    val localServer: Closure<Server> = closureOf<Server> {
+        this.url = "http://43.200.247.241:8080/"
+    } as Closure<Server>
+
+    setServers(listOf(devServer, localServer))
     title = "spring-rest-docs + Swagger-UI"
     description = "Swagger UI"
     version = "0.0.1"
     format = "json"
-    outputDirectory = "build/resources/main/static/docs"
+    outputDirectory = "$buildDir/resources/main/static/docs"
 }
 
 sourceSets {
