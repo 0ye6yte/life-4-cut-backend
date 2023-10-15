@@ -20,10 +20,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 public class Slot extends BaseEntity {
   @Nonnull
-  @Column(nullable = false)
+  @Column(nullable = false, name = "album_id")
   private Long albumId;
 
-  @Nullable @Column private Long pictureId;
+  @Nullable
+  @Column(name = "picture_id")
+  private Long pictureId;
 
   @Nonnull
   @Column(nullable = false)
@@ -39,7 +41,9 @@ public class Slot extends BaseEntity {
   @Enumerated(EnumType.STRING)
   private SlotLocation location;
 
-  @Nullable @Column private LocalDateTime deletedAt;
+  @Nullable
+  @Column(name = "deleted_at")
+  private LocalDateTime deletedAt;
 
   public void addPicture(Long pictureId) {
     this.pictureId = pictureId;
