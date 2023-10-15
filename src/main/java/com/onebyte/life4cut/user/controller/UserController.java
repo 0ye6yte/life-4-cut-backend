@@ -7,6 +7,7 @@ import com.onebyte.life4cut.user.controller.dto.UserDuplicateResponse;
 import com.onebyte.life4cut.user.controller.dto.UserFindResponse;
 import com.onebyte.life4cut.user.domain.User;
 import com.onebyte.life4cut.user.service.UserService;
+import jakarta.validation.Valid;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -43,7 +44,7 @@ public class UserController {
   @ResponseStatus(value = HttpStatus.NO_CONTENT)
   public void updateMe(
       @AuthenticationPrincipal CustomUserDetails user,
-      @RequestPart(value = "data", required = false) UpdateUserRequest request,
+      @Valid @RequestPart(value = "data", required = false) UpdateUserRequest request,
       @RequestPart(value = "image", required = false) MultipartFile image) {
     userService.updateUser(user.getUserId(), request, image);
   }

@@ -16,6 +16,7 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 @Transactional
@@ -57,15 +58,15 @@ public class UserService {
 
   public void updateUser(long id, UpdateUserRequest request, MultipartFile image) {
     User user = userRepository.findUser(id).orElseThrow(UserNotFound::new);
-    user.changeNickname(request.nickname());
-
-    if (image == null) {
-      return;
+    if (request != null && StringUtils.hasText(request.nickname())) {
+      user.changeNickname(request.nickname());
     }
 
-    FileUploadResponse response =
-        fileUploader.upload(MultipartFileUploadRequest.of(image, s3Env.bucket()));
-    String imagePath = response.key();
-    user.changeProfilePath(imagePath);
+    if (image != null) {
+      FileUploadResponse response =
+          fileUploader.upload(MultipartFileUploadRequest.of(image, s3Env.bucket()));
+      String imagePath = response.key();
+      user.changeProfilePath(imagePath);
+    }
   }
 }
