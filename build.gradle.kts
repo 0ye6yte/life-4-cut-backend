@@ -1,6 +1,6 @@
-import org.hidetake.gradle.swagger.generator.GenerateSwaggerUI
-import io.swagger.v3.oas.models.servers.Server
 import groovy.lang.Closure
+import io.swagger.v3.oas.models.servers.Server
+import org.hidetake.gradle.swagger.generator.GenerateSwaggerUI
 
 plugins {
     java
@@ -10,6 +10,7 @@ plugins {
     id("com.epages.restdocs-api-spec") version "0.18.2"
     id("org.hidetake.swagger.generator") version "2.18.2"
     id("com.diffplug.spotless") version "6.22.0"
+    id("org.sonarqube") version "4.4.1.3373"
 }
 
 group = "com.onebyte"
@@ -140,6 +141,14 @@ tasks {
      */
     jacocoTestReport {
         dependsOn(test)
+
+        reports {
+            xml.required.set(true)
+            csv.required.set(false)
+            html.required.set(false)
+
+            xml.outputLocation.set(file("$buildDir/reports/jacoco/test/jacocoTestReport.xml"))
+        }
     }
 
 //    jacocoTestCoverageVerification {
@@ -179,6 +188,16 @@ spotless {
 
             it
         }
+    }
+}
+
+sonarqube {
+    properties {
+        property("sonar.projectName", "life-4-cut-backend")
+        property("sonar.projectKey", "0ne6yte_life-4-cut-backend")
+        property("sonar.sources", "src/main")
+        property("sonar.tests", "src/test")
+        property("sonar.coverage.jacoco.xmlReportPaths", "${layout.buildDirectory.get()}/reports/jacoco/test/*.xml")
     }
 }
 
