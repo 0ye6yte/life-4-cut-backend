@@ -307,6 +307,7 @@ public class PictureServiceIntTest {
               (entity, builder) -> {
                 builder.set("albumId", album.getId());
                 builder.set("content", "originContent");
+                builder.set("picturedAt", LocalDateTime.of(2021, 1, 1, 0, 0));
                 builder.setNull("deletedAt");
               });
       UserAlbum useralbum =
@@ -396,6 +397,7 @@ public class PictureServiceIntTest {
           pictureFixtureFactory.save(
               (entity, builder) -> {
                 builder.set("albumId", album.getId());
+                builder.set("picturedAt", LocalDateTime.of(2021, 1, 1, 0, 0));
                 builder.setNull("deletedAt");
               });
       UserAlbum useralbum =
