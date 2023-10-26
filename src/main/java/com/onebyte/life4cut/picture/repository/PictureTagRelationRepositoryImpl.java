@@ -29,4 +29,13 @@ public class PictureTagRelationRepositoryImpl implements PictureTagRelationRepos
 
     return results;
   }
+
+  @Override
+  public List<PictureTagRelation> findByPictureId(Long pictureId) {
+    return em.createQuery(
+            "SELECT ptr FROM PictureTagRelation ptr WHERE ptr.pictureId = :pictureId",
+            PictureTagRelation.class)
+        .setParameter("pictureId", pictureId)
+        .getResultList();
+  }
 }

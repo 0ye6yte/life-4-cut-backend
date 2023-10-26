@@ -39,10 +39,12 @@ public class Picture extends BaseEntity {
   private String content;
 
   @Nonnull
-  @Column(nullable = false)
+  @Column(nullable = false, name = "pictured_at")
   private LocalDateTime picturedAt;
 
-  @Nullable @Column private LocalDateTime deletedAt;
+  @Nullable
+  @Column(name = "deleted_at")
+  private LocalDateTime deletedAt;
 
   @Nonnull
   public static Picture create(
@@ -58,5 +60,22 @@ public class Picture extends BaseEntity {
     picture.content = content.trim();
     picture.picturedAt = picturedAt;
     return picture;
+  }
+
+  public boolean isIn(@Nonnull Long albumId) {
+    return this.albumId.equals(albumId);
+  }
+
+  public void updateIfRequired(
+      @Nullable String content, @Nullable LocalDateTime picturedAt, @Nullable String path) {
+    if (content != null) {
+      this.content = content.trim();
+    }
+    if (picturedAt != null) {
+      this.picturedAt = picturedAt;
+    }
+    if (path != null) {
+      this.path = path;
+    }
   }
 }

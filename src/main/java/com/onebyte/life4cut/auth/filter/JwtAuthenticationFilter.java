@@ -5,6 +5,7 @@ import com.onebyte.life4cut.auth.dto.CustomUserDetails;
 import com.onebyte.life4cut.auth.handler.jwt.TokenProvider;
 import com.onebyte.life4cut.auth.repository.RefreshTokenRepository;
 import com.onebyte.life4cut.user.exception.RefreshTokenNotValid;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -19,6 +20,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.util.WebUtils;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -32,49 +34,41 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
       throws ServletException, IOException {
 
-    String accessToken = resolveAccessToken(request);
-    String requestUri = request.getRequestURI();
+    try {
+      String accessToken = getCookieValue(request, "accessToken");
+      String requestUri = request.getRequestURI();
 
-    if (StringUtils.hasText(accessToken) && tokenProvider.validateToken(accessToken)) {
-      Authentication authentication = tokenProvider.getAuthentication(accessToken);
-      SecurityContextHolder.getContext().setAuthentication(authentication);
-      log.debug(
-          "Security Context에 '{}' 인증 정보를 저장했습니다, uri: {}", authentication.getName(), requestUri);
-    } else {
-      checkRefreshToken(request, response);
-      log.debug("유효한 JWT 토큰이 없습니다, uri: {}", requestUri);
+      if (StringUtils.hasText(accessToken) && tokenProvider.validateToken(accessToken)) {
+        Authentication authentication = tokenProvider.getAuthentication(accessToken);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        log.debug(
+            "Security Context에 '{}' 인증 정보를 저장했습니다, uri: {}", authentication.getName(), requestUri);
+      } else {
+        log.debug("유효한 JWT 토큰이 없습니다, uri: {}", requestUri);
+        checkRefreshToken(request, response);
+      }
+
+    } catch (Exception e) {
+      request.setAttribute("exception", e);
     }
 
     filterChain.doFilter(request, response);
   }
 
-  private String resolveAccessToken(HttpServletRequest request) {
-    Cookie[] cookies = request.getCookies();
-    for (Cookie cookie : cookies) {
-      String name = cookie.getName();
-      if (name.equals("accessToken")) {
-        return cookie.getValue();
-      }
+  private String getCookieValue(HttpServletRequest request, String key) {
+    Cookie cookie = WebUtils.getCookie(request, key);
+    if (cookie == null) {
+      return null;
     }
-    return null;
-  }
 
-  private String resolveRefreshToken(HttpServletRequest request) {
-    Cookie[] cookies = request.getCookies();
-    for (Cookie cookie : cookies) {
-      String name = cookie.getName();
-      if (name.equals("refreshToken")) {
-        return cookie.getValue();
-      }
-    }
-    return null;
+    return cookie.getValue();
   }
 
   private void checkRefreshToken(HttpServletRequest request, HttpServletResponse response) {
-    String refreshToken = resolveRefreshToken(request);
+    String refreshToken = getCookieValue(request, "refreshToken");
     log.info("Check Refresh Token: {}", refreshToken);
     if (refreshToken == null || refreshToken.equals("")) {
-      return;
+      throw new JwtException("Refresh Token이 존재하지 않습니다.");
     }
 
     Authentication authentication = tokenProvider.getAuthentication(refreshToken);

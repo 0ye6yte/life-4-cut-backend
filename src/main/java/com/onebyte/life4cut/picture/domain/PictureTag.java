@@ -17,24 +17,27 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @Table(
+    name = "picture_tag",
     indexes = {
-      @Index(name = "idx_picture_tag_1", columnList = "albumId,name", unique = true),
-      @Index(name = "idx_picture_tag_2", columnList = "authorId")
+      @Index(name = "idx_picture_tag_1", columnList = "album_id,name", unique = true),
+      @Index(name = "idx_picture_tag_2", columnList = "author_id")
     })
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 public class PictureTag extends BaseEntity {
 
   @Nonnull
-  @Column(nullable = false)
+  @Column(nullable = false, name = "album_id")
   private Long albumId;
 
   @Nonnull
-  @Column(nullable = false)
+  @Column(nullable = false, name = "author_id")
   private Long authorId;
 
   @Nonnull @Embedded private PictureTagName name;
 
-  @Nullable @Column private LocalDateTime deletedAt;
+  @Nullable
+  @Column(name = "deleted_at")
+  private LocalDateTime deletedAt;
 
   @Nonnull
   public static PictureTag create(

@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import lombok.experimental.SuperBuilder;
 
 @SuperBuilder
@@ -46,6 +47,20 @@ public class User extends BaseEntity {
   private String oauthId;
 
   @Column private LocalDateTime deletedAt;
+
+  public void changeNickname(@NonNull String nickname) {
+    if (nickname.equals("")) {
+      return;
+    }
+    this.nickname = nickname;
+  }
+
+  public void changeProfilePath(@NonNull String profilePath) {
+    if (profilePath.equals("")) {
+      return;
+    }
+    this.profilePath = profilePath;
+  }
 
   public void deleteSoftly(LocalDateTime deletedAt) {
     this.deletedAt = deletedAt;
